@@ -337,7 +337,7 @@ static void delete_bonds(void)
 {
 	uint32_t err;
 
-	printk("Erase bonds!\n");
+	LOG_INF("Erase bonds!");
 
 	err = pm_peers_delete();
 	if (err) {
@@ -355,6 +355,8 @@ static void advertising_start(bool erase_bonds)
 		err = ble_adv_start(&ble_adv, BLE_ADV_MODE_FAST);
 		if (err) {
 			LOG_ERR("Failed to start advertising, err %d", err);
+		} else {
+			LOG_INF("Advertising as %s", CONFIG_BLE_ADV_NAME);
 		}
 	}
 }
@@ -420,6 +422,7 @@ static int peer_manager_init(void)
 int main(void)
 {
 	int err;
+	bool erase_bonds = false;
 	uint8_t body_sensor_location = BLE_HRS_BODY_SENSOR_LOCATION_FINGER;
 	ble_uuid_t adv_uuid_list[] = {
 		{ .uuid = BLE_UUID_HEART_RATE_SERVICE, .type = BLE_UUID_TYPE_BLE },
@@ -515,13 +518,7 @@ int main(void)
 
 	simulated_meas_start();
 
-	err = ble_adv_start(&ble_adv, BLE_ADV_MODE_FAST);
-	if (err) {
-		LOG_ERR("Failed to start advertising, err %d", err);
-		goto idle;
-	}
-
-	LOG_INF("Advertising as %s", CONFIG_BLE_ADV_NAME);
+	advertising_start(erase_bonds);
 
 idle:
 	while (true) {
