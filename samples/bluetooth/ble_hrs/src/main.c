@@ -14,6 +14,7 @@
 #include <bluetooth/services/ble_bas.h>
 #include <bluetooth/services/ble_dis.h>
 #include <bluetooth/services/ble_hrs.h>
+#include <bm_buttons.h>
 #include <bm_timer.h>
 #include <sensorsim.h>
 #include <zephyr/logging/log.h>
@@ -21,6 +22,8 @@
 #include <bluetooth/peer_manager/nrf_ble_lesc.h>
 #include <bluetooth/peer_manager/peer_manager.h>
 #include <bluetooth/peer_manager/peer_manager_handler.h>
+
+#include <board-config.h>
 
 LOG_MODULE_REGISTER(app, CONFIG_BLE_HRS_SAMPLE_LOG_LEVEL);
 
@@ -333,6 +336,37 @@ static void ble_hrs_evt_handler(struct ble_hrs *hrs, const struct ble_hrs_evt *e
 	}
 }
 
+static int buttons_init(bool *erase_bonds)
+{
+	int err;
+	const struct bm_buttons_config cfg[] = {
+		{
+			.pin_number = BOARD_PIN_BTN_1,
+			.active_state = BM_BUTTONS_ACTIVE_LOW,
+			.pull_config = BM_BUTTONS_PIN_PULLUP,
+			.handler = NULL,
+		},
+	};
+
+	err = bm_buttons_init(cfg, ARRAY_SIZE(cfg), BM_BUTTONS_DETECTION_DELAY_MIN_US);
+	if (err) {
+		return err;
+	}
+
+	err = bm_buttons_enable();
+	if (err) {
+		return err;
+	}
+
+	if (erase_bonds != NULL) {
+		*erase_bonds = bm_buttons_is_pressed(BOARD_PIN_BTN_1);
+	}
+
+	(void)bm_buttons_disable();
+
+	return 0;
+}
+
 static void delete_bonds(void)
 {
 	uint32_t err;
@@ -507,6 +541,12 @@ int main(void)
 	err = ble_conn_params_evt_handler_set(on_conn_params_evt);
 	if (err) {
 		LOG_ERR("Failed to setup conn param event handler, err %d", err);
+		goto idle;
+	}
+
+	err = buttons_init(&erase_bonds);
+	if (err) {
+		LOG_ERR("Failed to initialize buttons, err %d", err);
 		goto idle;
 	}
 
