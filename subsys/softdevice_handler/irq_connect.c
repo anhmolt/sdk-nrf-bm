@@ -16,7 +16,6 @@ LOG_MODULE_REGISTER(sdh_irq_connect, CONFIG_NRF_SDH_LOG_LEVEL);
 #if CONFIG_SOC_SERIES_NRF54LX
 #include "irq_connect.h"
 
-extern void CLOCK_POWER_IRQHandler(void);
 extern void RADIO_0_IRQHandler(void);
 extern void TIMER10_IRQHandler(void);
 extern void GRTC_3_IRQHandler(void);
@@ -63,7 +62,7 @@ static int irq_init(void)
 
 	/* These are not zero latency. */
 	IRQ_DIRECT_CONNECT(AAR00_CCM00_IRQn, PRIO_LOW, AAR00_CCM00_IRQHandler, 0);
-	IRQ_DIRECT_CONNECT(CLOCK_POWER_IRQn, PRIO_LOW, CLOCK_POWER_IRQHandler, 0);
+	// IRQ_DIRECT_CONNECT(CLOCK_POWER_IRQn, PRIO_LOW, CLOCK_POWER_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(ECB00_IRQn, PRIO_LOW, ECB00_IRQHandler, 0);
 	IRQ_DIRECT_CONNECT(SWI00_IRQn, PRIO_LOW, SWI00_IRQHandler, 0);
 

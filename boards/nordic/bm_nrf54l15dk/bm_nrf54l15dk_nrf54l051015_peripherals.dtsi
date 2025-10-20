@@ -12,7 +12,6 @@
 };
 
 /delete-node/ &adc;
-/delete-node/ &clock;
 /delete-node/ &comp;
 /delete-node/ &cpuflpr_vpr;
 /delete-node/ &dppic00;
