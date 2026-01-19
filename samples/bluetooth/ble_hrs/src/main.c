@@ -248,6 +248,8 @@ static void on_ble_evt(const ble_evt_t *evt, void *ctx)
 		LOG_INF("Peer disconnected");
 		if (conn_handle == evt->evt.gap_evt.conn_handle) {
 			conn_handle = BLE_CONN_HANDLE_INVALID;
+			hrs_notif_enabled = false;
+			bas_notif_enabled = false;
 		}
 		break;
 
@@ -398,6 +400,26 @@ static void pm_evt_handler(const struct pm_evt *p_evt)
 	switch (p_evt->evt_id) {
 	case PM_EVT_PEERS_DELETE_SUCCEEDED:
 		advertising_start(false);
+		break;
+	case PM_EVT_LOCAL_DB_CACHE_APPLIED:
+		uint32_t nrf_err;
+		ble_gatts_value_t val = {
+			.p_value = (uint8_t *)&(uint16_t){0},
+			.len = sizeof(uint16_t),
+		};
+
+		/* CCCD values have been restored. Update local notif enabled states. */
+		nrf_err = sd_ble_gatts_value_get(p_evt->conn_handle,
+						 ble_hrs.hrm_handles.cccd_handle, &val);
+		if (!nrf_err) {
+			hrs_notif_enabled = is_notification_enabled(val.p_value);
+		}
+
+		nrf_err = sd_ble_gatts_value_get(p_evt->conn_handle,
+						 ble_bas.battery_level_handles.cccd_handle, &val);
+		if (!nrf_err) {
+			bas_notif_enabled = is_notification_enabled(val.p_value);
+		}
 		break;
 	default:
 		break;
