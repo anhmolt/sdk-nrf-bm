@@ -313,6 +313,10 @@ static void hrs_c_evt_handler(struct ble_hrs_client *hrs, const struct ble_hrs_c
 		}
 		break;
 
+	case BLE_HRS_CLIENT_EVT_ERROR:
+		LOG_ERR("hrs client async error, nrf_error %d", evt->params.error.reason);
+		break;
+
 	default:
 		LOG_WRN("Unhandled HRS event %d", evt->evt_type);
 		break;
