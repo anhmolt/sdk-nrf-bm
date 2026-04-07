@@ -18,5 +18,5 @@
 	 * to adjust sram size to not overlap with retainedmem
 	 */
 	reg = <0x20000080 (DT_SIZE_K(256) - DT_SIZE_K(1) - 0x80)>;
-	ranges = <0x0 0x20000080 (DT_SIZE_K(256) - DT_SIZE_K(1) - 0x80)>;
+	ranges = <0x80 0x20000080 (DT_SIZE_K(256) - DT_SIZE_K(1) - 0x80)>;
 };

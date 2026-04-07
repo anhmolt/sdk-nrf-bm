@@ -29,7 +29,7 @@
 			 * 0x140 bytes are added to the 191 kB.
 			 */
 			reg = <0x20000080 (DT_SIZE_K(191) - 0x80 + 0x140)>;
-			ranges = <0x0 0x20000080 (DT_SIZE_K(191) - 0x80 + 0x140)>;
+			ranges = <0x80 0x20000080 (DT_SIZE_K(191) - 0x80 + 0x140)>;
 		};
 	};
 

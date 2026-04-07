@@ -92,15 +92,15 @@
 	 * * (here we ignore the extra 320 bytes at the top end)
 	 */
 	reg = <0x20000080 (DT_SIZE_K(511) - 0x100 - 0x80)>;
-	ranges = <0x0 0x20000080 (DT_SIZE_K(511) - 0x100 - 0x80)>;
+	ranges = <0x80 0x20000080 (DT_SIZE_K(511) - 0x100 - 0x80)>;
 
-	softdevice_ram: sram@0 {
+	softdevice_ram: sram@80 {
 		label = "softdevice_ram";
-		reg = <0x0 0x4380>;
+		reg = <0x80 0x4380>;
 	};
 
-	app_ram: sram@4380 {
+	app_ram: sram@4400 {
 		label = "app_ram";
-		reg = <0x4380 DT_SIZE_K(493)>;
+		reg = <0x4400 DT_SIZE_K(493)>;
 	};
 };

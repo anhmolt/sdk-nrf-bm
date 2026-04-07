@@ -26,7 +26,7 @@
 			#size-cells = <1>;
 			/* Size reduced  by 0x80 bytes to account for the start address offset. */
 			reg = <0x20000080 (DT_SIZE_K(96) - 0x80)>;
-			ranges = <0x0 0x20000080 (DT_SIZE_K(96) - 0x80)>;
+			ranges = <0x80 0x20000080 (DT_SIZE_K(96) - 0x80)>;
 		};
 	};
 

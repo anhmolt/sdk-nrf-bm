@@ -59,13 +59,13 @@
 &cpuapp_sram {
 	status = "okay";
 
-	softdevice_ram: sram@0 {
+	softdevice_ram: sram@80 {
 		label = "softdevice_ram";
-		reg = <0x0 0x4380>;
+		reg = <0x80 0x4380>;
 	};
 
-	app_ram: sram@4380 {
+	app_ram: sram@4400 {
 		label = "app_ram";
-		reg = <0x4380 (DT_SIZE_K(238) + 0x200)>;
+		reg = <0x4400 (DT_SIZE_K(238) + 0x200)>;
 	};
 };
