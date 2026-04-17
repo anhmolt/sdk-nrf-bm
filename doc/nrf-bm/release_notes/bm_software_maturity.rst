@@ -222,6 +222,97 @@ For more details on supported Bluetooth features, see the SoftDevice Specificati
 * `S115 SoftDevice Specification`_
 * S145 (Specification not available yet)
 
+Multi connection and multi instance support in Bare Metal libraries
+*******************************************************************
+
+The following table is a rough overview of multi connection and multi instance support in Bare Metal libraries and services:
+
+.. list-table:: Multiple connection and instance support
+   :header-rows: 1
+   :align: center
+   :widths: auto
+
+   * - Library/Service
+     - Multi connection
+     - Multi instance
+     - Notes
+   * - **ble_adv**
+     - y
+     - y
+     - SoftDevice can only advertise based on one instance at a time.
+   * - **ble_conn_params**
+     - y
+     - n
+     - One instance with support for multiple connections.
+   * - **ble_db_discovery**
+     - y
+     - y
+     -
+   * - **ble_gq**
+     - y
+     - y
+     -
+   * - **ble_qwr**
+     - y
+     - y
+     -
+   * - **ble_scan**
+     - y
+     - y
+     - SoftDevice can only scan based on one instance at a time.
+   * - **peer_manager**
+     - y
+     - n
+     - One instance with support for multiple connections and peers.
+   * - **ble_bas**
+     - y
+     - y
+     -
+   * - **ble_bas_client**
+     - y
+     - y
+     - One instance needed for each central role connection.
+   * - **ble_bms**
+     - y
+     - --
+     - Only one bond managment service should exist on a device.
+   * - **ble_cgms**
+     - n
+     - y
+     - One connection supported. Multiple CGM services can exist for that one connection.
+   * - **ble_dis**
+     - y
+     - --
+     - Only one device information service should exist on a device.
+   * - **ble_hids**
+     - y
+     - --
+     -
+   * - **ble_hrs**
+     - n
+     - y
+     - One connection supported. Multiple heart rate services can exist for that one connection.
+   * - **ble_hrs_client**
+     - y
+     - y
+     - One instance needed for each central role connection.
+   * - **ble_lbs**
+     - y
+     - y
+     -
+   * - **ble_mcumgr**
+     - n
+     - n
+     -
+   * - **ble_nus**
+     - y
+     - y
+     -
+   * - **ble_nus_client**
+     - y
+     - y
+     - One instance needed for each central connection.
+
 NFC features support
 ********************
 
