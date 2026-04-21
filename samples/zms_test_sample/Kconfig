@@ -1,0 +1,15 @@
+#
+# Copyright (c) 2024 Nordic Semiconductor ASA
+#
+# SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
+#
+
+menu "ZMS test sample"
+
+module=ZMS_TEST_SAMPLE
+module-str=ZMS test sample
+source "$(ZEPHYR_BASE)/subsys/logging/Kconfig.template.log_config"
+
+endmenu # "ZMS test sample"
+
+source "Kconfig.zephyr"
