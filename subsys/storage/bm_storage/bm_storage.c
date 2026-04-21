@@ -100,6 +100,9 @@ int bm_storage_read(const struct bm_storage *storage, uint32_t src, void *dest, 
 	}
 
 	if (!is_within_bounds(src, len, storage->size)) {
+		printk("OUTSIDE BOUNDS!\n");
+		printk("bm_storage_read(): src %#x, len %#x (%d), storage->size %d\n",
+		       src, len, len, storage->size);
 		return -EINVAL;
 	}
 
