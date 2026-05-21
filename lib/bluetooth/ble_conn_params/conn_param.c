@@ -144,6 +144,24 @@ static void on_conn_params_update(uint16_t conn_handle, int idx,
 	}
 }
 
+#if defined(CONFIG_SOFTDEVICE_CENTRAL)
+static void on_conn_params_update_request(uint16_t conn_handle, int idx,
+					  const ble_gap_evt_conn_param_update_request_t *evt)
+{
+	uint32_t nrf_err;
+
+	if (conn_params_can_agree(&evt->conn_params)) {
+		nrf_err = sd_ble_gap_conn_param_update(conn_handle, &evt->conn_params);
+	} else {
+		nrf_err = sd_ble_gap_conn_param_update(conn_handle, NULL);
+	}
+
+	if (nrf_err) {
+		LOG_ERR("Failed to update connection params, nrf_error %#x", nrf_err);
+	}
+}
+#endif /* CONFIG_SOFTDEVICE_CENTRAL */
+
 static void on_ble_evt(const ble_evt_t *evt, void *ctx)
 {
 	const uint16_t conn_handle = evt->evt.common_evt.conn_handle;
@@ -163,7 +181,12 @@ static void on_ble_evt(const ble_evt_t *evt, void *ctx)
 	case BLE_GAP_EVT_CONN_PARAM_UPDATE:
 		on_conn_params_update(conn_handle, idx, &evt->evt.gap_evt.params.conn_param_update);
 		break;
-
+#if defined(CONFIG_SOFTDEVICE_CENTRAL)
+	case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST:
+		on_conn_params_update_request(conn_handle, idx,
+					      &evt->evt.gap_evt.params.conn_param_update_request);
+		break;
+#endif /* CONFIG_SOFTDEVICE_CENTRAL */
 	default:
 		/* Ignore */
 		break;
