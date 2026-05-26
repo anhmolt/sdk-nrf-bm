@@ -79,6 +79,9 @@ Libraries
       * Support for the :c:macro:`BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST` SoftDevice event.
 
    * Updated the :c:func:`ble_conn_params_phy_radio_mode_set` function to return :c:macro:`NRF_ERROR_INVALID_PARAM` if the ``phy_pref`` parameter contains PHY modes not supported by the SoftDevice.
+   * Updated the :c:func:`ble_conn_params_override` function to allow runtime overrides of the acceptable connection parameter window used when validating peripheral requests to change the connection parameters.
+     Previously, this window was set statically by Kconfig options and was not possible to override at runtime.
+
 
    * Fixed:
 
@@ -91,7 +94,6 @@ Bluetooth LE Services
 * :ref:`lib_ble_scan`
 
    * Changed :c:member:`ble_scan_filter_data.addr_filter.addr` and :c:member:`ble_scan_filter_data.name_filter.name` to ``const`` in the :c:struct:`ble_scan_filter_data` structure.
-
 
 Libraries for NFC
 -----------------
