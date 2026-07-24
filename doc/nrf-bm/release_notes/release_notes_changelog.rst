@@ -42,7 +42,8 @@ Boards
 Build system
 ============
 
-No changes since the latest nRF Connect SDK Bare Metal release.
+* Updated :file:`west.yml` to allowlist ``memfault-firmware-sdk`` from the |NCS| manifest.
+* Updated :file:`zephyr/module.yml` to declare a build dependency on ``memfault-firmware-sdk``.
 
 Interrupts
 ==========
@@ -71,6 +72,16 @@ Filesystem
 ----------
 
 No changes since the latest nRF Connect SDK Bare Metal release.
+
+Memfault
+--------
+
+* Added bare-metal Memfault platform support in :file:`subsys/memfault/`:
+
+   * :kconfig:option:`CONFIG_NCS_BM_MEMFAULT_LOCK` – ``irq_lock()``-based :c:func:`memfault_lock` / :c:func:`memfault_unlock` for builds without Zephyr multithreading (default when ``NCS_BM && MEMFAULT && !MULTITHREADING``).
+   * Excludes the Memfault SDK ``memfault_platform_lock.c`` (``k_mutex``-based) from the build so Memfault links without :kconfig:option:`CONFIG_MULTITHREADING`.
+
+* Added :ref:`memfault_bm` documentation describing ISR vs main-loop usage rules for Memfault on |BMshort|.
 
 Libraries
 =========
@@ -129,6 +140,15 @@ Bluetooth LE Services
    * Added support for configuring the Device Information Service characteristics at run time through the new :c:struct:`ble_dis_values` structure, passed using the ``values`` field of :c:struct:`ble_dis_config`.
      When ``values`` is ``NULL``, the service is built from the Kconfig defaults as before.
 
+   * Fixed unused-variable warnings when :kconfig:option:`CONFIG_BLE_DIS_REGULATORY_CERT` is disabled by guarding regulatory certification encode buffers with ``#if CONFIG_BLE_DIS_REGULATORY_CERT``.
+
+* Added the :ref:`lib_ble_service_mds` (Memfault Diagnostic Service) for exporting Memfault diagnostic chunks over Bluetooth LE.
+  The service exposes the Memfault upload URI, authorization, and data-export notifications according to the Memfault Diagnostic GATT Service specification.
+
+  * Enable with :kconfig:option:`CONFIG_BLE_MDS` (requires :kconfig:option:`CONFIG_MEMFAULT`).
+  * Chunk export is driven from the main loop via :c:func:`ble_mds_process`.
+  * Kconfig options: :kconfig:option:`CONFIG_BLE_MDS_DATA_URI_MAX_LEN`, :kconfig:option:`CONFIG_BLE_MDS_EMPTY_POLL_INTERVAL_MS`, :kconfig:option:`CONFIG_BLE_MDS_TRIGGER_LOG_COLLECTION`, :kconfig:option:`CONFIG_BLE_MDS_LOG_COLLECTION_INTERVAL_MS`.
+
 Libraries for NFC
 -----------------
 
@@ -152,6 +172,17 @@ Peripheral samples
 
 Bluetooth LE samples
 --------------------
+
+* Added the :ref:`ble_mds_sample` sample.
+  It demonstrates Memfault metrics, trace events, coredumps, and MDS-based upload to Memfault over Bluetooth LE (via an MDS gateway such as `nRF Connect Device Manager`_).
+
+  The sample:
+
+   * Advertises MDS, Battery Service, and Device Information Service.
+   * Uses hardware-derived device ID (:kconfig:option:`CONFIG_MEMFAULT_NCS_DEVICE_ID_HW_ID`).
+   * Defines custom metrics (``button_press_count``, ``battery_soc_pct``, ``button_elapsed_time_ms``), a ``button_state_changed`` trace reason, and a Button 3 hardfault coredump trigger.
+   * Documents Memfault cloud setup, symbol file upload, and bare-metal Memfault usage (see :ref:`memfault_bm`).
+   * Is included in Twister CI as ``sample.ble_mds`` (``ci_build`` tag).
 
 * Updated the following samples and applications that do not support pairing to call the :c:func:`sd_ble_gatts_sys_attr_set` function only in response to the :c:macro:`BLE_GATTS_EVT_SYS_ATTR_MISSING` event and not as a response to a :c:macro:`BLE_GAP_EVT_CONNECTED` event:
 
@@ -227,4 +258,11 @@ No changes since the latest nRF Connect SDK Bare Metal release.
 Documentation
 =============
 
-No changes since the latest nRF Connect SDK Bare Metal release.
+* Added:
+
+   * :ref:`memfault_bm` – Memfault integration on bare metal (platform lock, ISR vs main-loop rules, cloud prerequisites).
+   * :ref:`lib_ble_service_mds` – Memfault Diagnostic Service library guide.
+   * :ref:`ble_mds_sample` – sample user guide and Memfault getting-started steps.
+   * Memfault Diagnostic Service API reference (:ref:`api_ble_mds`).
+
+* Updated :file:`doc/nrf-bm/links.txt` with Memfault and nRF Cloud related links.

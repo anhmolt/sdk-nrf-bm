@@ -28,4 +28,54 @@ source "$(ZEPHYR_BASE)/subsys/logging/Kconfig.template.log_config"
 
 endmenu # "Bluetooth LE MDS sample"
 
+#
+# Firmware version and device identification
+#
+# The application :file:`VERSION` file is the single source of truth for the
+# firmware revision. Kconfig defaults below propagate that value to Memfault
+# and the Bluetooth Device Information Service (DIS).
+#
+# | Field             | Memfault (NCS)              | Bluetooth DIS              |
+# |-------------------|-----------------------------|----------------------------|
+# | software_version  | MEMFAULT_NCS_FW_VERSION     | BLE_DIS_FW_REVISION        |
+# | software_type     | MEMFAULT_NCS_FW_TYPE        | BLE_DIS_SW_REVISION        |
+# | hardware_version  | MEMFAULT_NCS_HW_VERSION     | BLE_DIS_HW_REVISION        |
+# | device_serial     | MEMFAULT_NCS_DEVICE_ID      | BLE_DIS_SERIAL_NUMBER      |
+#
+# Memfault uses the NCS built-in device info implementation
+# (:kconfig:option:`CONFIG_MEMFAULT_NCS_DEVICE_INFO_BUILTIN`), not the Memfault
+# SDK :kconfig:option:`CONFIG_MEMFAULT_BUILTIN_DEVICE_INFO_SOFTWARE_VERSION`
+# option. Enable :kconfig:option:`CONFIG_MEMFAULT_NCS_FW_VERSION_STATIC` in
+# :file:`prj.conf` so the version from the :file:`VERSION` file is reported
+# instead of the default dynamic ``<prefix>+<build-id>`` string.
+#
+# Keep ``source "Kconfig.zephyr"`` at the end of this file so these defaults
+# take precedence.
+
+config MEMFAULT_NCS_FW_VERSION
+	default "$(APPVERSION)"
+
+config BLE_DIS_FW_REVISION
+	default MEMFAULT_NCS_FW_VERSION
+
+config MEMFAULT_NCS_FW_TYPE
+	default "app"
+
+config BLE_DIS_SW_REVISION
+	default MEMFAULT_NCS_FW_TYPE
+
+config MEMFAULT_NCS_HW_VERSION
+	default "hw 54.15.0"
+
+config BLE_DIS_HW_REVISION
+	default MEMFAULT_NCS_HW_VERSION
+
+#
+# Handle increased buffersize when MEMFAULT Logging is enabled
+#
+
+config MEMFAULT_LOGGING_RAM_SIZE
+	default 1024 if MEMFAULT_LOGGING_ENABLE
+
+
 source "Kconfig.zephyr"
