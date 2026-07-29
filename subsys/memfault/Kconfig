@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LicenseRef-Nordic-5-Clause
 #
 
-config NCS_BM_MEMFAULT_LOCK
+config BM_MEMFAULT_LOCK
 	bool "NCS BM Memfault platform lock (irq_lock-based)"
 	default y
 	depends on NCS_BM && MEMFAULT && !MULTITHREADING
