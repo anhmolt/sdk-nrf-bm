@@ -126,8 +126,6 @@
 .. _`nRF54LS05B`: https://docs.nordicsemi.com/category/nRF54LS05B-category
 .. _`nRF54LV10A`: https://docs.nordicsemi.com/category/nRF54LV10A-category
 
-.. _`nRF54L Series datasheet`: https://docs.nordicsemi.com/r/bundle/additionalresources/page/additionalresources/nrf54l-series
-
 .. _`nrfx documentation`: https://docs.nordicsemi.com/bundle/nrfx-apis-latest/page/index.html
 
 .. ### Release notes and migration

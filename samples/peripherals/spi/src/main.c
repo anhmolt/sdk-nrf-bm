@@ -33,8 +33,8 @@ static void spim_handler(nrfx_spim_event_t const *event, void *context)
 static void spis_handler(nrfx_spis_event_t const *event, void *context)
 {
 	if (event->evt_type == NRFX_SPIS_XFER_DONE) {
-		LOG_INF("Message received (%u bytes):", event->rx_amount);
-		LOG_HEXDUMP_INF(rx_buf, event->rx_amount, "Message");
+		LOG_INF("Message received (%u bytes): \"%.*s\"",
+			event->rx_amount, event->rx_amount, rx_buf);
 		nrf_gpio_pin_toggle(BOARD_PIN_LED_2);
 
 		nrfx_spis_buffers_set(&spis_inst, NULL, 0, rx_buf, sizeof(rx_buf));
@@ -109,17 +109,10 @@ int main(void)
 		goto idle;
 	}
 
-	/* Delay between chip select going active and the first clock pulse.
-	 *
-	 * A target coming out of a low power state needs time to wake its clock and output data.
-	 * Without this delay, the master may start clocking before the target is ready,
-	 * and end up sampling invalid data, corrupting the transfer.
-	 * If the target's clock is always on, this delay can be removed.
-	 *
-	 * The value below is tuned to this target's wakeup time,
-	 * derived from that wakeup time and the SPIM instance's core clock cycle period.
+	/* Set delay from chip select going active to the first SCK edge.
+	 * A larger value allows for a longer wakeup time on the SPI target device.
 	 */
-	spim_inst.p_reg->IFTIMING.CSNDUR = 80;
+	spim_inst.p_reg->IFTIMING.CSNDUR = CONFIG_SAMPLE_SPI_CSN_TO_CLK_DELAY;
 
 	err = nrfx_spis_init(&spis_inst, &spis_config, spis_handler, NULL);
 	if (err) {
@@ -144,7 +137,7 @@ int main(void)
 
 	/* User info on startup */
 	LOG_INF("Press Button 2 to send \"%s\" over SPI", tx_buf);
-	LOG_INF("Waiting for SPI master to send data...");
+	LOG_INF("Waiting for SPI controller to send data...");
 
 idle:
 	while (true) {

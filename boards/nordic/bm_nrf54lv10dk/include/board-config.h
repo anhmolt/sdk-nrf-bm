@@ -63,7 +63,7 @@ extern "C" {
 #define BOARD_CONSOLE_UARTE_PIN_CTS NRF_PIN_PORT_TO_PIN_NUMBER(7, 1)
 #endif
 
-/* Application SPI master configuration */
+/* Application SPI controller configuration */
 #ifndef BOARD_APP_SPIM_INST
 #define BOARD_APP_SPIM_INST NRF_SPIM21
 #endif
@@ -81,7 +81,7 @@ extern "C" {
 #define BOARD_APP_SPIM_PIN_CSN  NRF_PIN_PORT_TO_PIN_NUMBER(3, 1)
 #endif
 
-/* Application SPI slave configuration */
+/* Application SPI target configuration */
 #ifndef BOARD_APP_SPIS_INST
 #define BOARD_APP_SPIS_INST NRF_SPIS30
 #endif
