@@ -111,7 +111,7 @@ The sample supports the following development kits with **on-board SPI external 
 .. note::
    The `nRF54LV10 DK`_ and `nRF54LS05 DK`_ do **not** have on-board external flash memory and are therefore out of scope for this sample.
    However, the :ref:`lib_bm_spi_mngr` library itself is fully supported on the nRF54lv10 and nRF54ls05 SoCs.
-   You can still use the SPI manager feature on these boards by connecting your own external SPI slave device (for example, an external NOR flash) to the SPI pins of the SoC and adapting the sample configuration accordingly (pin assignments in :file:`board-config.h`, command set, and timing parameters to match your device).
+   You can still use the SPI manager feature on these boards by connecting an external SPI target device (for example, an external NOR flash) to the SPI pins of the SoC and adapting the sample configuration accordingly (pin assignments in :file:`board-config.h`, command set, and timing parameters to match your device).
 
 .. important::
    Before flashing the sample, you must enable **External memory** using the `Board Configurator`_ app in `nRF Connect for Desktop`_, and then write the configuration to the board.
@@ -142,16 +142,16 @@ User interface
 **************
 
 LED 0:
-  Lit when the device is initialized.
+   Lit when the device is initialized.
 
 Button 1:
-  Erase external memory.
+   Erase external memory.
 
 Button 2:
-  Read external memory.
+   Read external memory.
 
 Button 3:
-  Program external memory.
+   Program external memory.
 
 Building and running
 ********************
