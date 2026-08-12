@@ -9,5 +9,5 @@ config BM_SPI_MNGR
 	depends on NRFX_SPIM
 	select RING_BUFFER
 	help
-	  A library for queuing SPI master transactions (multi-transfer sequences) on one SPIM
+	  A library for queuing SPI controller transactions (multi-transfer sequences) on one SPIM
 	  instance.

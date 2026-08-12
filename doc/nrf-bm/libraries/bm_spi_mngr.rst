@@ -7,7 +7,7 @@ SPI transaction manager
    :local:
    :depth: 2
 
-This library runs SPI master (SPIM) work on a single hardware instance, one job at a time.
+This library runs SPI controller (SPIM) work on a single hardware instance, one job at a time.
 
 Overview
 ********

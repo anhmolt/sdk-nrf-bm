@@ -10,7 +10,7 @@
  * @defgroup bm_spi_mngr SPI transaction manager
  * @{
  *
- * @brief SPI master transaction queue on top of @ref nrfx_spim.
+ * @brief SPI controller transaction queue on top of @ref nrfx_spim.
  *
  * Transactions wait in a FIFO queue and run one after another on the bus.
  * Each transaction is one or more TX and RX steps in order.
