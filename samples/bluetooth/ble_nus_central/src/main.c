@@ -126,8 +126,9 @@ static void uarte_rx_handler(char *data, size_t data_len)
 		}
 
 		if ((c == '\n' || c == '\r') || (rx_buf_idx >= ble_nus_max_data_len)) {
-			if (rx_buf_idx == 0) {
+			if (rx_buf_idx <= 1) {
 				/* RX buffer is empty, nothing to send. */
+				rx_buf_idx = 0;
 				continue;
 			}
 
@@ -135,15 +136,23 @@ static void uarte_rx_handler(char *data, size_t data_len)
 			LOG_INF("Sending NUS data, len %d", len);
 
 			do {
-				nrf_err = ble_nus_client_string_send(&ble_nus_client, rx_buf,
-									 len);
+				nrf_err = ble_nus_client_string_send(&ble_nus_client, rx_buf, len);
 				if ((nrf_err != NRF_ERROR_INVALID_STATE) &&
 				    (nrf_err != NRF_ERROR_RESOURCES) && nrf_err) {
 					LOG_ERR("Failed to send NUS data, nrf_error %#x", nrf_err);
 					return;
 				}
 			} while (nrf_err == NRF_ERROR_RESOURCES);
-			rx_buf_idx = 0;
+
+			if (len == rx_buf_idx) {
+				rx_buf_idx = 0;
+			} else {
+				/* Not all data in RX buffer was transmitted.
+				 * Move what is left to start of buffer.
+				 */
+				memmove(&rx_buf[len], &rx_buf[0], rx_buf_idx - len);
+				rx_buf_idx -= len;
+			}
 		}
 	}
 }

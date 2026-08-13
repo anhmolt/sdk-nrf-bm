@@ -109,8 +109,9 @@ static void uarte_rx_handler(char *data, size_t data_len)
 		}
 
 		if ((c == '\n' || c == '\r') || (rx_buf_idx >= ble_nus_max_data_len)) {
-			if (rx_buf_idx == 0) {
+			if (rx_buf_idx <= 1) {
 				/* RX buffer is empty, nothing to send. */
+				rx_buf_idx = 0;
 				continue;
 			}
 
