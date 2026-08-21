@@ -123,8 +123,7 @@ static int nrf_sdh_enable(void)
 		.source = CONFIG_NRF_SDH_CLOCK_LF_SRC,
 		.rc_ctiv = CONFIG_NRF_SDH_CLOCK_LF_RC_CTIV,
 		.rc_temp_ctiv = CONFIG_NRF_SDH_CLOCK_LF_RC_TEMP_CTIV,
-		.accuracy = CONFIG_NRF_SDH_CLOCK_LF_ACCURACY,
-		.hfint_ctiv = CONFIG_NRF_SDH_CLOCK_HFINT_CALIBRATION_INTERVAL,
+		.accuracy = CONFIG_NRF_SDH_CLOCK_LF_ACCURACY
 	};
 
 	err = sd_softdevice_enable(&clock_lf_cfg, softdevice_fault_handler);

@@ -146,11 +146,6 @@ config NRF_SDH_CLOCK_LF_ACCURACY
 	default 11 if NRF_SDH_CLOCK_LF_ACCURACY_1_PPM
 	default 0
 
-config NRF_SDH_CLOCK_HFINT_CALIBRATION_INTERVAL
-	int "HFINT calibration interval in seconds"
-	range 1 255
-	default 60
-
 endmenu
 
 if NRF_SDH_BLE
