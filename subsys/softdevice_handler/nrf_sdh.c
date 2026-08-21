@@ -124,7 +124,6 @@ static int nrf_sdh_enable(void)
 		.rc_ctiv = CONFIG_NRF_SDH_CLOCK_LF_RC_CTIV,
 		.rc_temp_ctiv = CONFIG_NRF_SDH_CLOCK_LF_RC_TEMP_CTIV,
 		.accuracy = CONFIG_NRF_SDH_CLOCK_LF_ACCURACY,
-		.hfclk_latency = CONFIG_NRF_SDH_CLOCK_HFCLK_LATENCY,
 		.hfint_ctiv = CONFIG_NRF_SDH_CLOCK_HFINT_CALIBRATION_INTERVAL,
 	};
 
