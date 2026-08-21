@@ -1632,24 +1632,13 @@
  * hscale = "2";
  * APP,SD,PEER;
  * |||;
- * APP rbox PEER [label="Connection Established, security mode 1 level 1 (open link)"];
+ * APP rbox PEER [label="Connection Established"];
  * |||;
  * SD<:PEER [label = "ATT Handle Value Indication", textcolor="#000080", linecolor="#000080"];
- * APP<<=SD [label = "BLE_GATTC_EVT_HVX {INDICATION, handle, data}"];
- * APP=>SD [label = "sd_ble_gattc_hv_confirm(conn_handle, handle)"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_HVX {INDICATION, data}"];
+ * APP=>SD [label = "sd_ble_gattc_hv_confirm(handle)"];
  * APP<<SD [label = "NRF_SUCCESS"];
  * SD:>PEER [label = "ATT Handle Value Confirmation", textcolor="#000080", linecolor="#000080"];
- * APP rbox APP [label = "current security level is not enough for received attribute handle\ndrop data and request security mode 1 level 4"];
- * APP=>SD [label = "sd_ble_gap_authenticate()"];
- * APP<<SD [label = "NRF_SUCCESS"];
- * APP rbox PEER [label="Peer authenticated, connection encrypted"];
- * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {mode 1 level 4}"];
- * SD<:PEER [label = "ATT Handle Value Indication", textcolor="#000080", linecolor="#000080"];
- * APP<<=SD [label = "BLE_GATTC_EVT_HVX {INDICATION, handle, data}"];
- * APP=>SD [label = "sd_ble_gattc_hv_confirm(conn_handle, handle)"];
- * APP<<SD [label = "NRF_SUCCESS"];
- * SD:>PEER [label = "ATT Handle Value Confirmation", textcolor="#000080", linecolor="#000080"];
- * APP rbox APP [label = "peer is trusted, process data"];
  * @endmsc
  *
  * @defgroup BLE_GATTC_HVN_MSC GATTC Handle Value Notification
@@ -1657,18 +1646,10 @@
  * hscale = "2";
  * APP,SD,PEER;
  * |||;
- * APP rbox PEER [label="Connection Established, security mode 1 level 1 (open link)"];
+ * APP rbox PEER [label="Connection Established"];
  * |||;
  * SD<:PEER [label = "ATT Handle Value Notification", textcolor="#000080", linecolor="#000080"];
- * APP<<=SD [label = "BLE_GATTC_EVT_HVX {NOTIFICATION, handle, data}"];
- * APP rbox APP [label = "current security level is not enough for received attribute handle\ndrop data and request security mode 1 level 4"];
- * APP=>SD [label = "sd_ble_gap_authenticate()"];
- * APP<<SD [label = "NRF_SUCCESS"];
- * APP rbox PEER [label="Peer authenticated, connection encrypted"];
- * APP<<=SD [label = "BLE_GAP_EVT_CONN_SEC_UPDATE {mode 1 level 4}"];
- * SD<:PEER [label = "ATT Handle Value Notification", textcolor="#000080", linecolor="#000080"];
- * APP<<=SD [label = "BLE_GATTC_EVT_HVX {NOTIFICATION, handle, data}"];
- * APP rbox APP [label = "peer is trusted, process data"];
+ * APP<<=SD [label = "BLE_GATTC_EVT_HVX {NOTIFICATION, data}"];
  * @endmsc
  *
  * @defgroup BLE_GATTC_TIMEOUT_MSC GATTC Timeout

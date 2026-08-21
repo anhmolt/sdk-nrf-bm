@@ -101,7 +101,7 @@ extern "C" {
 
 
 /** @defgroup BLE_APPEARANCES Bluetooth Appearance values
- *  @note Defined in Bluetooth Assigned Numbers, Section 2.6 Appearance Values
+ *  @note Retrieved from https://specificationrefs.bluetooth.com/assigned-values/Appearance%20Values.pdf
  * @{ */
 #define BLE_APPEARANCE_UNKNOWN                                0 /**< Unknown. */
 #define BLE_APPEARANCE_GENERIC_PHONE                         64 /**< Generic Phone. */

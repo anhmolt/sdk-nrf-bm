@@ -245,7 +245,7 @@ enum BLE_GAP_TX_POWER_ROLES
 /**@} */
 
 /**@defgroup BLE_GAP_AD_TYPE_DEFINITIONS GAP Advertising and Scan Response Data format
- * @note Defined in Bluetooth Assigned Numbers, Section 2.3 Common Data Types
+ * @note Found at https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile/
  * @{ */
 #define BLE_GAP_AD_TYPE_FLAGS                               0x01 /**< Flags for discoverability. */
 #define BLE_GAP_AD_TYPE_16BIT_SERVICE_UUID_MORE_AVAILABLE   0x02 /**< Partial list of 16 bit service UUIDs. */
@@ -305,7 +305,7 @@ enum BLE_GAP_TX_POWER_ROLES
 
 /**@defgroup BLE_GAP_ADV_TYPES GAP Advertising types
  *
- * Advertising types defined in Bluetooth Core Specification, Vol 6, Part B, Section 4.4.2.
+ * Advertising types defined in Bluetooth Core Specification v5.0, Vol 6, Part B, Section 4.4.2.
  *
  * The maximum advertising data length is defined by @ref BLE_GAP_ADV_SET_DATA_SIZE_MAX.
  * Note that some of the advertising types do not support advertising data. Non-scannable types do not support
@@ -660,7 +660,7 @@ typedef struct
 
 
 /**@brief Channel mask (40 bits).
- * Every channel is represented with a bit positioned as per channel index defined in Bluetooth Core Specification,
+ * Every channel is represented with a bit positioned as per channel index defined in Bluetooth Core Specification v5.0,
  * Vol 6, Part B, Section 1.4.1. The LSB contained in array element 0 represents channel index 0, and bit 39 represents
  * channel index 39. If a bit is set to 1, the channel is not used.
  */
@@ -944,7 +944,7 @@ typedef struct
 
 
 /**@brief Security levels supported.
- * @note  See Bluetooth Core Specification, Vol 3, Part C, Section 10.2.1.
+ * @note  See Bluetooth Specification Version 4.2 Volume 3, Part C, Chapter 10, Section 10.2.1.
 */
 typedef struct
 {
@@ -978,7 +978,7 @@ typedef struct
   ble_gap_id_key_t       *p_id_key;            /**< Identity Key, or NULL. */
   ble_gap_sign_info_t    *p_sign_key;          /**< Signing Key, or NULL. */
   ble_gap_lesc_p256_pk_t *p_pk;                /**< LE Secure Connections P-256 Public Key. When in debug mode the application must use the value defined
-                                                    in the Bluetooth Core Specification, Vol 3, Part H, Section 2.3.5.6.1 */
+                                                    in the Core Bluetooth Specification v4.2 Vol.3, Part H, Section 2.3.5.6.1 */
 } ble_gap_sec_keys_t;
 
 
@@ -1227,13 +1227,13 @@ typedef union
  *       return the previous channel map until the new one has taken effect.
  *
  * @note After setting the channel map, by spec it can not be set again until at least 1 s has passed.
- *       See Bluetooth Core Specification, Vol 4, Part E, Section 7.8.19.
- *       The SoftDevice does not enforce this.
+ *       See Bluetooth Specification Version 4.1 Volume 2, Part E, Section 7.3.46.
  *
  * @retval ::NRF_SUCCESS Get or set successful.
  * @retval ::NRF_ERROR_INVALID_PARAM One or more of the following is true:
  *                                   - Less then two bits in @ref ch_map are set.
  *                                   - Bits for primary advertising channels (37-39) are set.
+ * @retval ::NRF_ERROR_BUSY Channel map was set again before enough time had passed.
  * @retval ::BLE_ERROR_INVALID_CONN_HANDLE Invalid connection handle supplied for get.
  * @retval ::NRF_ERROR_NOT_SUPPORTED Returned by @ref sd_ble_opt_set in peripheral-only SoftDevices.
  *
@@ -1473,8 +1473,9 @@ SVCALL(SD_BLE_GAP_PRIVACY_GET, uint32_t, sd_ble_gap_privacy_get(ble_gap_privacy_
 
 /**@brief Configure an advertising set. Set, clear or update advertising and scan response data.
  *
- * @note  To ensure interoperability the advertising data must follow the format defined in
- *        Supplement to the Bluetooth Core Specification, Part A, Section 1 Data Types Definitions And Formats.
+ * @note  The format of the advertising data will be checked by this call to ensure interoperability.
+ *        Limitations imposed by this API call to the data provided include having a flags data type in the scan response data and
+ *        duplicating the local name in the advertising data and scan response data.
  *
  * @note In order to update advertising data while advertising, new advertising buffers must be provided.
  *
@@ -1496,7 +1497,7 @@ SVCALL(SD_BLE_GAP_PRIVACY_GET, uint32_t, sd_ble_gap_privacy_get(ble_gap_privacy_
  *                                                      - Use of whitelist requested but whitelist has not been set,
  *                                                        see @ref sd_ble_gap_whitelist_set.
  * @retval ::BLE_ERROR_GAP_INVALID_BLE_ADDR            ble_gap_adv_params_t::p_peer_addr is invalid.
- * @retval ::NRF_ERROR_INVALID_STATE                   Invalid state to perform operation:
+ * @retval ::NRF_ERROR_INVALID_STATE                   Invalid state to perform operation. Either:
  *                                                     - It is invalid to provide non-NULL advertising set parameters while advertising.
  * @retval ::BLE_ERROR_GAP_DISCOVERABLE_WITH_WHITELIST Discoverable mode and whitelist incompatible.
  * @retval ::BLE_ERROR_INVALID_ADV_HANDLE              The provided advertising handle was not found. Use @ref BLE_GAP_ADV_SET_HANDLE_NOT_SET to
@@ -1504,7 +1505,7 @@ SVCALL(SD_BLE_GAP_PRIVACY_GET, uint32_t, sd_ble_gap_privacy_get(ble_gap_privacy_
  * @retval ::NRF_ERROR_INVALID_ADDR                    Invalid pointer supplied.
  * @retval ::NRF_ERROR_INVALID_FLAGS                   Invalid combination of advertising flags supplied.
  * @retval ::NRF_ERROR_INVALID_DATA                    Invalid data type(s) supplied. Check the advertising data format specification
- *                                                     given in Bluetooth Core Specification, Vol 3, Part C, Section 11.
+ *                                                     given in Bluetooth Specification Version 5.0, Volume 3, Part C, Chapter 11.
  * @retval ::NRF_ERROR_INVALID_LENGTH                  Invalid data length(s) supplied:
  *                                                      - Provided advertising data length exceeds the maximum allowed length.
  *                                                      - Provided advertising data length does not fit in the configured advertising interval.
@@ -1594,7 +1595,6 @@ SVCALL(SD_BLE_GAP_ADV_STOP, uint32_t, sd_ble_gap_adv_stop(uint8_t adv_handle));
  * @param[in] conn_handle Connection handle.
  * @param[in] p_conn_params  Pointer to desired connection parameters.
  *                           If NULL is provided on a peripheral role, the parameters in the PPCP characteristic of the GAP service will be used instead.
- *                           This is only allowed if no field in the PPCP characteristic is set to "No specific values indication (0xFFFF)".
  *
  * @retval ::NRF_SUCCESS The Connection Update procedure has been started successfully.
  * @retval ::NRF_ERROR_INVALID_ADDR Invalid pointer supplied.
@@ -2089,7 +2089,7 @@ SVCALL(SD_BLE_GAP_DATA_LENGTH_UPDATE, uint32_t, sd_ble_gap_data_length_update(ui
 /**@brief   Obtain the next connection event counter value.
  *
  * @details The connection event counter is initialized to zero on the first connection event. The value is incremented
- *          by one for each connection event. For more information see Bluetooth Core Specification, Vol 6, Part B,
+ *          by one for each connection event. For more information see Bluetooth Core Specification v5.0, Vol 6, Part B,
  *          Section 4.5.1.
  *
  * @note    The connection event counter obtained through this API will be outdated if this API is called

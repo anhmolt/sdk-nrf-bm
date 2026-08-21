@@ -228,8 +228,8 @@ typedef struct
  */
 typedef struct
 {
-  uint8_t   version_number;    /**< Link Layer Version number. Defined in Bluetooth Assigned Numbers, Section 2.1 Core Specification Versions. */
-  uint16_t  company_id;        /**< Company ID, Nordic Semiconductor's company ID is 89 (0x0059). Defined in Bluetooth Assigned Numbers, Section 7 Company Identifiers. */
+  uint8_t   version_number;    /**< Link Layer Version number. See https://www.bluetooth.com/specifications/assigned-numbers/link-layer/ for assigned values. */
+  uint16_t  company_id;        /**< Company ID, Nordic Semiconductor's company ID is 89 (0x0059) (https://www.bluetooth.com/specifications/assigned-numbers/company-identifiers/). */
   uint16_t  subversion_number; /**< Link Layer Sub Version number, corresponds to the SoftDevice Config ID or Firmware ID (FWID). */
 } ble_version_t;
 

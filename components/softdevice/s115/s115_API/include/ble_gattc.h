@@ -90,7 +90,7 @@ enum BLE_GATTC_EVTS
   BLE_GATTC_EVT_READ_RSP,                                 /**< Read Response event.                               \n See @ref ble_gattc_evt_read_rsp_t.                    */
   BLE_GATTC_EVT_CHAR_VALS_READ_RSP,                       /**< Read multiple Response event.                      \n See @ref ble_gattc_evt_char_vals_read_rsp_t.          */
   BLE_GATTC_EVT_WRITE_RSP,                                /**< Write Response event.                              \n See @ref ble_gattc_evt_write_rsp_t.                   */
-  BLE_GATTC_EVT_HVX,                                      /**< Handle Value Notification or Indication event.     \n See @ref ble_gattc_evt_hvx_t. */
+  BLE_GATTC_EVT_HVX,                                      /**< Handle Value Notification or Indication event.     \n Confirm indication with @ref sd_ble_gattc_hv_confirm.  \n See @ref ble_gattc_evt_hvx_t. */
   BLE_GATTC_EVT_EXCHANGE_MTU_RSP,                         /**< Exchange MTU Response event.                       \n See @ref ble_gattc_evt_exchange_mtu_rsp_t.            */
   BLE_GATTC_EVT_TIMEOUT,                                  /**< Timeout event.                                     \n See @ref ble_gattc_evt_timeout_t.                     */
   BLE_GATTC_EVT_WRITE_CMD_TX_COMPLETE                     /**< Write without Response transmission complete.      \n See @ref ble_gattc_evt_write_cmd_tx_complete_t.       */
@@ -301,23 +301,7 @@ typedef struct
                                              See @ref sd_ble_evt_get for more information on how to use event structures with variable length array members. */
 } ble_gattc_evt_write_rsp_t;
 
-/**@brief Event structure for @ref BLE_GATTC_EVT_HVX.
- *
- * @details Confirm indication with @ref sd_ble_gattc_hv_confirm.
- *
- *          Application shall check the security requirements for the connection before processing any indications or notifications from the server.
- *          If the security requirements are not met, information received in this event shall be ignored,
- *          but indication still needs to be confirmed with @ref sd_ble_gattc_hv_confirm.
- *          See Bluetooth Core Specification, Vol 3, Part C, "10.3.2.2 Handling of GATT indications and notifications" for more details.
- *          The SoftDevice generates @ref BLE_GAP_EVT_CONN_SEC_UPDATE event on every change in the connection security level.
- *          Application can also obtain current security level any time using @ref sd_ble_gap_conn_sec_get.
- *          Use @ref sd_ble_gap_authenticate to request raising of the security level.
- *
- * @mscs
- * @mmsc{@ref BLE_GATTC_HVI_MSC}
- * @mmsc{@ref BLE_GATTC_HVN_MSC}
- * @endmscs
- */
+/**@brief Event structure for @ref BLE_GATTC_EVT_HVX. */
 typedef struct
 {
   uint16_t            handle;         /**< Handle to which the HVx operation applies. */

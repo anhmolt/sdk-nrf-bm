@@ -138,7 +138,7 @@ extern "C" {
 
 
 /** @defgroup BLE_GATT_CPF_FORMATS Characteristic Presentation Formats
- *  @note Defined in Bluetooth Assigned Numbers, Section 2.4 Characteristic Presentation Format
+ *  @note Found at https://www.bluetooth.com/specifications/assigned-numbers/format-types/
  * @{ */
 #define BLE_GATT_CPF_FORMAT_RFU                 0x00 /**< Reserved For Future Use. */
 #define BLE_GATT_CPF_FORMAT_BOOLEAN             0x01 /**< Boolean. */
