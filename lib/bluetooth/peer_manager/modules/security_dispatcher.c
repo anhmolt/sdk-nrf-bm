@@ -580,6 +580,7 @@ static void auth_status_success_process(const ble_gap_evt_t *gap_evt)
 	nrf_err = pdb_temp_peer_id_get(conn_handle, &temp_peer_id);
 	if (nrf_err == NRF_SUCCESS) {
 		nrf_err = pdb_write_buf_get(temp_peer_id, PM_PEER_DATA_ID_BONDING, 1, &peer_data);
+		LOG_HEXDUMP_INF(peer_data.bonding_data, sizeof(struct pm_peer_data_bonding), "--- b:");
 	}
 
 	if (!gap_evt->params.auth_status.bonded) {
@@ -787,6 +788,7 @@ static uint32_t sec_keyset_fill(uint16_t conn_handle, uint8_t role,
 	if (nrf_err == NRF_SUCCESS) {
 		/* Acquire a memory buffer to receive bonding data into. */
 		nrf_err = pdb_write_buf_get(temp_peer_id, PM_PEER_DATA_ID_BONDING, 1, &peer_data);
+		LOG_HEXDUMP_INF(peer_data.bonding_data, sizeof(struct pm_peer_data_bonding), "--- a:");
 	}
 
 	if (nrf_err == NRF_ERROR_BUSY) {
@@ -818,6 +820,8 @@ static uint32_t sec_keyset_fill(uint16_t conn_handle, uint8_t role,
 				nrf_strerror_get(nrf_err), conn_handle);
 			return NRF_ERROR_INVALID_STATE;
 		}
+
+		LOG_HEXDUMP_INF(peer_data.bonding_data, sizeof(struct pm_peer_data_bonding), "--- a2:");
 	}
 
 	return nrf_err;

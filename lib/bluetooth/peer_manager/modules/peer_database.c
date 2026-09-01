@@ -91,6 +91,7 @@ struct pdb_buffer_record {
 static bool module_initialized;
 /** @brief The internal states of the write buffer. */
 static struct pm_buffer write_buffer;
+static uint32_t cnt = CONFIG_PM_FLASH_BUFFERS;
 /** @brief The available write buffer records. */
 static struct pdb_buffer_record write_buffer_records[CONFIG_PM_FLASH_BUFFERS];
 /**
@@ -208,6 +209,9 @@ static void write_buffer_record_release(struct pdb_buffer_record *write_buffer_r
 
 		pm_buffer_release(&write_buffer, write_buffer_record->buffer_block_id + i);
 	}
+
+	cnt += write_buffer_record->n_bufs;
+	LOG_INF("=== Buffer(s) released. Available buffers: %u/%u", cnt, CONFIG_PM_FLASH_BUFFERS);
 
 	write_buffer_record_invalidate(write_buffer_record);
 }
@@ -584,6 +588,9 @@ uint32_t pdb_write_buf_get(uint16_t peer_id, enum pm_peer_data_id data_id, uint3
 			write_buffer_record_invalidate(write_buffer_record);
 			return NRF_ERROR_BUSY;
 		}
+
+		cnt -= n_bufs;
+		LOG_INF("=== Buffer(s) acquired. Available buffers: %u/%u", cnt, CONFIG_PM_FLASH_BUFFERS);
 
 		new_record = true;
 	}
