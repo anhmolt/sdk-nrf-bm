@@ -155,6 +155,7 @@ uint32_t gscm_local_db_cache_update(uint16_t conn_handle)
 
 		nrf_err = pdb_write_buf_get(peer_id, PM_PEER_DATA_ID_GATT_LOCAL, n_bufs++,
 					    &peer_data);
+		LOG_HEXDUMP_INF(peer_data.bonding_data, sizeof(struct pm_peer_data_bonding), "--- c:");
 		if (nrf_err == NRF_SUCCESS) {
 			struct pm_peer_data_local_gatt_db *local_gatt_db =
 				peer_data.local_gatt_db;
