@@ -10,8 +10,6 @@ if(CONFIG_BM_MEMFAULT_LOCK)
   # with IRQ locking is needed.
   # Override memfault_platform_lock.c with memfault_platform_lock_bm.c.
 
-  set(ZEPHYR_CURRENT_LIBRARY "..__modules__lib__memfault-firmware-sdk__ports__zephyr")
-
   # Trick to be able to replace a source file.
   set_source_files_properties(
     ${ZEPHYR_MEMFAULT_FIRMWARE_SDK_MODULE_DIR}/ports/zephyr/common/memfault_platform_lock.c
@@ -19,6 +17,5 @@ if(CONFIG_BM_MEMFAULT_LOCK)
     PROPERTIES HEADER_FILE_ONLY ON
   )
 
-  zephyr_library_sources(memfault_platform_lock_bm.c)
-
+  target_sources(memfault-firmware-sdk PRIVATE memfault_platform_lock_bm.c)
 endif()
