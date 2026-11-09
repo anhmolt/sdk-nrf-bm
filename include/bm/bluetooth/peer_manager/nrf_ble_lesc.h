@@ -42,12 +42,11 @@ uint32_t nrf_ble_lesc_init(void);
  * @brief Generate ECC keypair used for the LESC procedure.
  *
  * @details This function generates an ECC key pair, which consists of a private and public key.
+ *          The generation is deferred to @ref nrf_ble_lesc_request_handler if called from an ISR.
  *          Keys are generated using ECC and are used to create LESC DH key during authentication
  *          procedures.
  *
  * @retval NRF_SUCCESS         If the operation was successful.
- * @retval NRF_ERROR_BUSY      If any pending request needs to be processed by @ref
- *                             nrf_ble_lesc_request_handler.
  * @retval NRF_ERROR_INTERNAL  If @ref psa_generate_key, or @ref psa_export_public_key failed.
  * @return Other error codes might be returned.
  */
@@ -99,14 +98,14 @@ void nrf_ble_lesc_peer_oob_data_handler_set(nrf_ble_lesc_peer_oob_data_handler h
  * @brief Respond to DH key requests.
  *
  * @details This function calculates DH keys and supplies them to the SoftDevice if there are any
- *          pending requests for keys.
+ *          pending requests for keys. The function will also renews the ECC key pair when needed.
  *
  * @note This function should be called systematically (e.g. in the main application loop) to handle
  *       any pending DH key requests.
  *
  * @retval NRF_SUCCESS         If the operation was successful.
- * @retval NRF_ERROR_INTERNAL  If the LESC module encountered an internal error. The only way to
- *                             recover from this type of error is to reset the application.
+ * @retval NRF_ERROR_FORBIDDEN If called from ISR.
+ * @retval NRF_ERROR_INTERNAL  If the ECC key pair or the OOB data could not be renewed.
  * @return Other error codes might be returned by the @ref sd_ble_gap_lesc_dhkey_reply function.
  */
 uint32_t nrf_ble_lesc_request_handler(void);
