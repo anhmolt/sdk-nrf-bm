@@ -39,7 +39,7 @@ typedef ble_gap_lesc_oob_data_t *(*nrf_ble_lesc_peer_oob_data_handler)(uint16_t 
 uint32_t nrf_ble_lesc_init(void);
 
 /**
- * @brief Generate ECC keypair used for the LESC procedure.
+ * @brief Generate ECC key pair used for the LESC procedure.
  *
  * @details This function generates an ECC key pair, which consists of a private and public key.
  *          The generation is deferred to @ref nrf_ble_lesc_request_handler if called from an ISR.
@@ -56,11 +56,11 @@ uint32_t nrf_ble_lesc_keypair_generate(void);
  * @brief Generate LESC OOB data.
  *
  * @details This function generates LESC OOB data, which can be transmitted Out-Of-Band to the peer
- *          device and used during LESC procedure. It is required to generate ECC keypair with @ref
+ *          device and used during LESC procedure. It is required to generate ECC key pair with @ref
  *          nrf_ble_lesc_keypair_generate before calling this function.
  *
  * @retval NRF_SUCCESS              If the operation was successful.
- * @retval NRF_ERROR_INVALID_STATE  If the ECC keypair hasn't been generated or is currently
+ * @retval NRF_ERROR_INVALID_STATE  If the ECC key pair hasn't been generated or is currently
  *                                  being generated.
  */
 uint32_t nrf_ble_lesc_own_oob_data_generate(void);
@@ -80,7 +80,7 @@ ble_gap_lesc_p256_pk_t *nrf_ble_lesc_public_key_get(void);
  *
  * @details This function can be used to access LESC OOB data that is associated with this device.
  *          It is required to regenerate LESC OOB data with @ref nrf_ble_lesc_own_oob_data_generate,
- *          after each change of ECC keypair with @ref nrf_ble_lesc_keypair_generate.
+ *          after each change of ECC key pair with @ref nrf_ble_lesc_keypair_generate.
  *
  * @return Pointer to the LESC OOB data or NULL if the data has not been generated yet or is no
  *         no longer valid.
