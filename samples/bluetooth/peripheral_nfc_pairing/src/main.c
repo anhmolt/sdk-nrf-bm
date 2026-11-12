@@ -36,6 +36,8 @@ LOG_MODULE_REGISTER(sample, CONFIG_SAMPLE_BLE_PERIPHERAL_NFC_PAIRING_LOG_LEVEL);
 #define CONN_STATUS_LED		BOARD_PIN_LED_1
 #define NFC_FIELD_LED		BOARD_PIN_LED_2
 
+#define MAX_CONN_COUNT		CONFIG_NRF_SDH_BLE_PERIPHERAL_LINK_COUNT
+
 /* BLE Advertising library instance */
 BLE_ADV_DEF(ble_adv);
 
@@ -44,6 +46,9 @@ static uint16_t peer_id = PM_PEER_ID_INVALID;
 
 static ble_gap_lesc_oob_data_t *oob_local;
 static uint8_t conn_cnt;
+static bool nfc_emulation_active;
+static bool advertising_active;
+static volatile bool adv_restart_requested;
 static uint8_t tk_value[NFC_NDEF_LE_OOB_REC_TK_LEN];
 static const char device_name[] = CONFIG_SAMPLE_BLE_DEVICE_NAME;
 
@@ -51,6 +56,42 @@ static const char device_name[] = CONFIG_SAMPLE_BLE_DEVICE_NAME;
 static uint8_t ndef_msg_buf[NDEF_MSG_BUF_SIZE];
 
 static void nfc_oob_data_update(void);
+static bool advertising_slot_available(void);
+static void nfc_emulation_apply(void);
+static void advertising_start(bool use_allow_list);
+
+static bool advertising_slot_available(void)
+{
+	return conn_cnt < MAX_CONN_COUNT;
+}
+
+static void nfc_emulation_apply(void)
+{
+	int err;
+
+	if (!advertising_slot_available()) {
+		if (nfc_emulation_active) {
+			err = nfc_t4t_emulation_stop();
+			if (err) {
+				LOG_ERR("Cannot stop NFC emulation, err %d", err);
+			} else {
+				nfc_emulation_active = false;
+				LOG_INF("NFC emulation stopped, connection limit reached");
+			}
+		}
+		return;
+	}
+
+	if (!nfc_emulation_active) {
+		err = nfc_t4t_emulation_start();
+		if (err) {
+			LOG_ERR("Cannot start NFC emulation, err %d", err);
+		} else {
+			nfc_emulation_active = true;
+			LOG_INF("NFC emulation started");
+		}
+	}
+}
 
 static void led_init(void)
 {
@@ -156,14 +197,80 @@ static void delete_bonds(void)
 	}
 }
 
-static void advertising_start(void)
+static void advertising_start(bool use_allow_list)
 {
+	uint32_t nrf_err;
+
+	if (advertising_active) {
+		nrf_err = ble_adv_stop(&ble_adv);
+		if (nrf_err) {
+			LOG_INF("Advertising already running, nrf_error %#x", nrf_err);
+		} else {
+			advertising_active = false;
+		}
+	}
+
+	if (!advertising_slot_available()) {
+		LOG_INF("Advertising not started, connection limit reached (%u/%u)",
+			conn_cnt, MAX_CONN_COUNT);
+		return;
+	}
+
 	allow_list_set(PM_PEER_ID_LIST_SKIP_NO_ID_ADDR);
 
-	uint32_t nrf_err = ble_adv_start(&ble_adv, BLE_ADV_MODE_DIRECTED);
-
+	nrf_err = ble_adv_start(&ble_adv, BLE_ADV_MODE_DIRECTED);
 	if (nrf_err) {
 		LOG_ERR("Failed to start advertising, nrf_error %#x", nrf_err);
+	} else {
+		advertising_active = true;
+	}
+
+	if (!use_allow_list) {
+		nrf_err = ble_adv_restart_without_allow_list(&ble_adv);
+		if (nrf_err) {
+			LOG_ERR("Failed switching to advertising without allow list, nrf_error %#x",
+			        nrf_err);
+		} else {
+			LOG_INF("Turned off allow list advertising");
+		}
+	}
+}
+
+static bool peer_is_bonded(uint16_t bonded_peer_id)
+{
+	struct pm_peer_data_bonding peer_bonding_data;
+
+	if (bonded_peer_id == PM_PEER_ID_INVALID) {
+		return false;
+	}
+
+	return pm_peer_data_bonding_load(bonded_peer_id, &peer_bonding_data) == NRF_SUCCESS;
+}
+
+static void adv_restart_button_handle(void)
+{
+	if (!advertising_slot_available()) {
+		LOG_INF("Cannot restart advertising, maximum connections reached (%u/%u)",
+			conn_cnt, MAX_CONN_COUNT);
+		return;
+	}
+
+	advertising_start(true);
+}
+
+static void button_handler(uint8_t pin, enum bm_buttons_evt_type action)
+{
+	if (action != BM_BUTTONS_PRESS) {
+		return;
+	}
+
+	switch (pin) {
+	case BOARD_PIN_BTN_0:
+		adv_restart_requested = true;
+		break;
+
+	default:
+		break;
 	}
 }
 
@@ -286,18 +393,31 @@ static void on_ble_evt(const ble_evt_t *evt, void *ctx)
 	switch (evt->header.evt_id) {
 	case BLE_GAP_EVT_CONNECTED:
 		LOG_INF("Peer connected");
+		advertising_active = false;
 		conn_cnt++;
 		conn_status_led_on();
+		nfc_emulation_apply();
 		break;
 
-	case BLE_GAP_EVT_DISCONNECTED:
+	case BLE_GAP_EVT_DISCONNECTED: {
+		uint16_t disconnected_peer_id = PM_PEER_ID_INVALID;
+		bool bonded_peer;
+
+		(void)pm_peer_id_get(evt->evt.gap_evt.conn_handle, &disconnected_peer_id);
+		bonded_peer = peer_is_bonded(disconnected_peer_id);
+
 		LOG_INF("Peer disconnected, reason %d",
 			evt->evt.gap_evt.params.disconnected.reason);
 		conn_cnt--;
 		if (conn_cnt == 0) {
 			conn_status_led_off();
 		}
+		nfc_emulation_apply();
+		if (bonded_peer) {
+			advertising_start(true);
+		}
 		break;
+	}
 
 	case BLE_GAP_EVT_PASSKEY_DISPLAY:
 		LOG_INF("Passkey: %.*s", BLE_GAP_PASSKEY_LEN,
@@ -321,10 +441,29 @@ static void ble_adv_evt_handler(struct ble_adv *ble_adv, const struct ble_adv_ev
 {
 	uint32_t nrf_err;
 	ble_gap_addr_t *peer_addr;
+	ble_gap_addr_t allow_list_addrs[BLE_GAP_WHITELIST_ADDR_MAX_COUNT];
+	ble_gap_irk_t allow_list_irks[BLE_GAP_WHITELIST_ADDR_MAX_COUNT];
+	uint32_t addr_cnt = BLE_GAP_WHITELIST_ADDR_MAX_COUNT;
+	uint32_t irk_cnt = BLE_GAP_WHITELIST_ADDR_MAX_COUNT;
 
 	switch (evt->evt_type) {
 	case BLE_ADV_EVT_ERROR:
 		LOG_ERR("Advertising error %#x", evt->error.reason);
+		break;
+
+	case BLE_ADV_EVT_ALLOW_LIST_REQUEST:
+		nrf_err = pm_allow_list_get(allow_list_addrs, &addr_cnt, allow_list_irks, &irk_cnt);
+		if (nrf_err) {
+			LOG_ERR("Failed to get allow list, nrf_error %#x", nrf_err);
+		}
+
+		identities_set(PM_PEER_ID_LIST_SKIP_NO_IRK);
+
+		nrf_err = ble_adv_allow_list_reply(ble_adv, allow_list_addrs, addr_cnt,
+						   allow_list_irks, irk_cnt);
+		if (nrf_err) {
+			LOG_ERR("Failed to reply with allow list, nrf_error %#x", nrf_err);
+		}
 		break;
 
 	case BLE_ADV_EVT_PEER_ADDR_REQUEST:
@@ -377,7 +516,7 @@ static void nfc_callback(void *context,
 		nfc_field_led_off();
 		break;
 	case NFC_T4T_EVENT_NDEF_READ:
-		advertising_start();
+		advertising_start(false);
 		break;
 	default:
 		break;
@@ -468,6 +607,7 @@ static int nfc_init(void)
 		LOG_ERR("Cannot start emulation!");
 		return err;
 	}
+	nfc_emulation_active = true;
 	LOG_INF("NFC configuration done");
 
 	return err;
@@ -480,10 +620,13 @@ static void nfc_oob_data_update(void)
 	uint32_t len = sizeof(ndef_msg_buf);
 
 	/* The payload can only be changed while emulation is stopped. */
-	err = nfc_t4t_emulation_stop();
-	if (err) {
-		LOG_ERR("Cannot stop emulation, err %d", err);
-		return;
+	if (nfc_emulation_active) {
+		err = nfc_t4t_emulation_stop();
+		if (err) {
+			LOG_ERR("Cannot stop emulation, err %d", err);
+			return;
+		}
+		nfc_emulation_active = false;
 	}
 
 	nrf_err = pairing_data_generate();
@@ -504,10 +647,7 @@ static void nfc_oob_data_update(void)
 		return;
 	}
 
-	err = nfc_t4t_emulation_start();
-	if (err) {
-		LOG_ERR("Cannot start emulation!");
-	}
+	nfc_emulation_apply();
 }
 
 static int board_buttons_init(void)
@@ -519,6 +659,7 @@ static int board_buttons_init(void)
 			.pin_number = BOARD_PIN_BTN_0,
 			.active_state = BM_BUTTONS_ACTIVE_LOW,
 			.pull_config = BM_BUTTONS_PIN_PULLUP,
+			.handler = button_handler,
 		},
 		{
 			.pin_number = BOARD_PIN_BTN_1,
@@ -628,7 +769,7 @@ int main(void)
 		if (peer_id != PM_PEER_ID_INVALID) {
 			LOG_INF("Found existing bond for peer id %d, starting advertising",
 				peer_id);
-			advertising_start();
+			advertising_start(true);
 		}
 	}
 
@@ -641,6 +782,11 @@ int main(void)
 fail:
 	/* Main loop */
 	while (true) {
+		if (adv_restart_requested) {
+			adv_restart_requested = false;
+			adv_restart_button_handle();
+		}
+
 		(void)nrf_ble_lesc_request_handler();
 		log_flush();
 		k_cpu_idle();

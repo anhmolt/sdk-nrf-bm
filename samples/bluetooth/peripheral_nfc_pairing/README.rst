@@ -135,6 +135,10 @@ From the NFC perspective, the sample implements a Type 4 Tag that contains a Han
 User interface
 **************
 
+Button 0:
+   Restart whitelist advertising when there is an available connection slot.
+   If the maximum number of connections is already established, a message is logged instead.
+
 Button 1:
    Keep the button pressed while resetting the board to delete bonding information for all peers stored on the device.
 
