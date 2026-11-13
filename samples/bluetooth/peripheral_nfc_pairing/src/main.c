@@ -36,8 +36,6 @@ LOG_MODULE_REGISTER(sample, CONFIG_SAMPLE_BLE_PERIPHERAL_NFC_PAIRING_LOG_LEVEL);
 #define CONN_STATUS_LED		BOARD_PIN_LED_1
 #define NFC_FIELD_LED		BOARD_PIN_LED_2
 
-#define BUTTON_BOND_REMOVE_PIN	BOARD_PIN_BTN_1
-
 /* BLE Advertising library instance */
 BLE_ADV_DEF(ble_adv);
 
@@ -516,7 +514,7 @@ static int board_buttons_init(void)
 {
 	int err;
 
-	static const struct bm_buttons_config configs[4] = {
+	static const struct bm_buttons_config configs[] = {
 		{
 			.pin_number = BOARD_PIN_BTN_0,
 			.active_state = BM_BUTTONS_ACTIVE_LOW,
@@ -524,16 +522,6 @@ static int board_buttons_init(void)
 		},
 		{
 			.pin_number = BOARD_PIN_BTN_1,
-			.active_state = BM_BUTTONS_ACTIVE_LOW,
-			.pull_config = BM_BUTTONS_PIN_PULLUP,
-		},
-		{
-			.pin_number = BOARD_PIN_BTN_2,
-			.active_state = BM_BUTTONS_ACTIVE_LOW,
-			.pull_config = BM_BUTTONS_PIN_PULLUP,
-		},
-		{
-			.pin_number = BOARD_PIN_BTN_3,
 			.active_state = BM_BUTTONS_ACTIVE_LOW,
 			.pull_config = BM_BUTTONS_PIN_PULLUP,
 		},
@@ -579,7 +567,7 @@ int main(void)
 		goto fail;
 	}
 
-	erase_bonds = bm_buttons_is_pressed(BUTTON_BOND_REMOVE_PIN);
+	erase_bonds = bm_buttons_is_pressed(BOARD_PIN_BTN_1);
 
 	err = nrf_sdh_enable_request();
 	if (err) {
